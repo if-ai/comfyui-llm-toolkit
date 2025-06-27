@@ -335,8 +335,8 @@ class LLMToolkitTextGenerator:
             }
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("text",)
+    RETURN_TYPES = ("*", "STRING")
+    RETURN_NAMES = ("context", "text")
     FUNCTION = "generate"
     CATEGORY = "llm_toolkit"
     OUTPUT_NODE = True # Keeps the text widget for non-streaming version
@@ -499,14 +499,14 @@ class LLMToolkitTextGenerator:
                 context_out = {"llm_response": content, "llm_raw_response": response_data, "passthrough_data": context}
 
             payload = ContextPayload(content, context_out)
-            return {"ui": {"string": [content]}, "result": (payload,)}
+            return {"ui": {"string": [content]}, "result": (payload, str(payload))}
 
         except Exception as e:
             error_message = f"Error generating text: {str(e)}"
             logger.error(error_message, exc_info=True)
             error_output = {"error": error_message, "original_input": context}
             payload = ContextPayload(error_message, error_output)
-            return {"ui": {"string": [error_message]}, "result": (payload,)}
+            return {"ui": {"string": [error_message]}, "result": (payload, str(payload))}
 
 # --- Helper to avoid dumping large base64 blobs to INFO log -----------------
 def _sanitize_params_for_log(d: dict) -> dict:
@@ -548,8 +548,8 @@ class LLMToolkitTextGeneratorStream:
             },
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("text",)
+    RETURN_TYPES = ("*", "STRING")
+    RETURN_NAMES = ("context", "text")
     FUNCTION = "generate_stream" # <-- Use new function name
     CATEGORY = "llm_toolkit"
     OUTPUT_NODE = True # Keep the JS widget logic
@@ -567,7 +567,7 @@ class LLMToolkitTextGeneratorStream:
                 error_msg = "Streaming requires PromptServer, which is not available."
                 error_output = {"error": error_msg, "original_input": context}
                 payload = ContextPayload(error_msg, error_output)
-                return {"ui": {"string": [error_msg]}, "result": (payload,)}
+                return {"ui": {"string": [error_msg]}, "result": (payload, str(payload))}
 
             server = PromptServer.instance
             full_response_text = ""
@@ -764,7 +764,7 @@ class LLMToolkitTextGeneratorStream:
                     }
 
                 payload = ContextPayload(full_response_text, context_out)
-                return {"ui": {"string": [full_response_text]}, "result": (payload,)}
+                return {"ui": {"string": [full_response_text]}, "result": (payload, str(payload))}
 
             except Exception as e:
                 error_message = f"Error during streaming generation: {str(e)}"
@@ -783,7 +783,7 @@ class LLMToolkitTextGeneratorStream:
                 payload = ContextPayload(error_message, error_output)
                 return {
                     "ui": {"string": [f"Error: {error_message}\nPartial: {full_response_text}"]},
-                    "result": (payload,),
+                    "result": (payload, str(payload)),
                 }
             # Previous async body END
 
