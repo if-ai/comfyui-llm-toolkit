@@ -31,6 +31,10 @@ async def create_openai_compatible_embedding(api_base: str, model: str, input: U
     }
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
+    # Attach organisation header if available
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
     
     payload = {
         "model": model,
@@ -97,6 +101,9 @@ async def send_openai_request(api_url, base64_images, model, system_message, use
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
+        org_id = os.getenv("OPENAI_ORG_ID")
+        if org_id:
+            openai_headers["OpenAI-Organization"] = org_id
 
         # Prepare messages
         openai_messages = prepare_openai_messages(base64_images, system_message, user_message, messages)
@@ -246,6 +253,9 @@ async def generate_image(
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
     payload = {
         "model": model,
         "prompt": prompt,
@@ -301,6 +311,9 @@ async def edit_image(
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
     payload = {
         "model": model,
         "prompt": prompt,
@@ -341,6 +354,9 @@ async def generate_image_variations(
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
     payload = {
         "model": model,
         "n": n,
@@ -374,6 +390,9 @@ async def text_to_speech(text: str, model: str = "tts-1", voice: str = "alloy", 
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
     payload = {
         "model": model,
         "input": text,
@@ -407,6 +426,9 @@ async def transcribe_audio(file_path: str, model: str = "whisper-1", response_fo
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
 
     with open(file_path, "rb") as audio_file:
         files = {
@@ -440,6 +462,9 @@ async def translate_audio(file_path: str, model: str = "whisper-1", response_for
     headers = {
         "Authorization": f"Bearer {api_key}"
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
 
     with open(file_path, "rb") as audio_file:
         files = {
@@ -485,6 +510,9 @@ async def send_openai_request_stream(
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
 
     # Prepare message list
     openai_messages: List[Dict[str, Any]] = []
@@ -584,6 +612,13 @@ async def send_openai_image_generation_request(
          mask_base64 = None # Ignore mask if not editing
 
     headers = {"Authorization": f"Bearer {api_key}"}
+    org_id = os.getenv("OPENAI_ORG_ID")
+    if org_id:
+        headers["OpenAI-Organization"] = org_id
+    # Ensure GPT-Image-1 requests use a legal size (256x256 no longer accepted)
+    if model == "gpt-image-1" and size != "1024x1024":
+        logger.info("Overriding size to '1024x1024' for gpt-image-1 (requested: %s)", size)
+        size = "1024x1024"
     api_url = None
     payload = {}
     files = []
