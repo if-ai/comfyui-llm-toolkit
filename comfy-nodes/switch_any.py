@@ -75,6 +75,54 @@ class SwitchAny:
             return (None,)
 
 
+# ---------------------------------------------------------------------------
+#  Original SwitchAnyRoute (two outputs, maintains exact type)
+# ---------------------------------------------------------------------------
+
+
+class SwitchAnyRoute:
+    """
+    Reverse switch node that takes a single input (any type) and a boolean selector.
+    Routes the input to either `output_true` or `output_false` so that downstream
+    nodes can branch based on the boolean flag.
+    """
+
+    def __init__(self):
+        self.type = "llm_toolkit/utils"
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "selector": (
+                    "BOOLEAN",
+                    {
+                        "default": True,
+                        "tooltip": "True = route to output_true, False = output_false",
+                    },
+                ),
+                "input": ("*", {"tooltip": "Input to be routed"}),
+            },
+            "hidden": {},
+        }
+
+    RETURN_TYPES = (WILDCARD, WILDCARD)
+    RETURN_NAMES = ("output_true", "output_false")
+    FUNCTION = "route"
+    OUTPUT_NODE = False
+    CATEGORY = "llm_toolkit/utils"
+
+    def route(self, selector: bool, input: Any):  # noqa: D401
+        logger.info("SwitchAnyRoute executing with selector=%s", selector)
+        try:
+            if selector:
+                return (input, None)
+            return (None, input)
+        except Exception as e:
+            logger.error("Error in SwitchAnyRoute: %s", e, exc_info=True)
+            return (None, None)
+
+
 # ===============================================================
 #  _wANY variants – preserve input/output dynamic typing
 # ===============================================================
