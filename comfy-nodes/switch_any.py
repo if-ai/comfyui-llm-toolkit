@@ -145,8 +145,8 @@ class SwitchAny_wANY:
                 "selector": ("BOOLEAN", {"default": True, "tooltip": "True = output input_a, False = output input_b"}),
             },
             "optional": {
-                "input_a": ("*", {"tooltip": "First input to output when selector is True"}),
-                "input_b": ("*", {"tooltip": "Second input to output when selector is False"}),
+                "input_a": (any, {"tooltip": "First input to output when selector is True"}),
+                "input_b": (any, {"tooltip": "Second input to output when selector is False"}),
             },
             "hidden": {},
         }
@@ -187,7 +187,7 @@ class SwitchAnyRoute_wANY:
                         "tooltip": "True = route to output_true, False = output_false",
                     },
                 ),
-                "input": ("*", {"tooltip": "Input to be routed"}),
+                "input": (any, {"tooltip": "Input to be routed"}),
             },
             "hidden": {},
         }
