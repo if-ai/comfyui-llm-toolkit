@@ -1669,6 +1669,32 @@ def get_models(engine, base_ip, port, api_key):
         # Suno offers three primary model versions
         return ["V3_5", "V4", "V4_5"]
 
+    elif engine == "google":
+        # Use Google Gemini API list models
+        fallback_models = [
+            "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-pro", "gemini-2.0-flash",
+            "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro", "gemini-pro-vision"
+        ]
+        try:
+            if not api_key or api_key == "1234":
+                logger.warning("No valid Google API key provided. Using fallback model list.")
+                return fallback_models
+
+            list_url = "https://generativelanguage.googleapis.com/v1beta/models?key=" + api_key
+            resp = requests.get(list_url, timeout=10)
+            if resp.status_code != 200:
+                logger.warning(f"Google list models failed {resp.status_code}: {resp.text[:120]}")
+                return fallback_models
+
+            data = resp.json()
+            models = [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+            # Strip the leading 'models/' if present
+            models = [m.split("/")[-1] for m in models]
+            return models if models else fallback_models
+        except Exception as exc:
+            logger.error(f"Error fetching Google models: {exc}")
+            return fallback_models
+
     else:
         print(f"Unsupported engine - {engine}")
         return []
