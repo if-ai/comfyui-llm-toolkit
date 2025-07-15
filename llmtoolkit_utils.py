@@ -1312,7 +1312,7 @@ def get_models(engine, base_ip, port, api_key):
         
         # Check if we have a transformers model manager to list models
         try:
-            from transformers_api import _transformers_manager
+            from api.transformers_api import _transformers_manager
             
             # Get list of models from LLM directory
             try:

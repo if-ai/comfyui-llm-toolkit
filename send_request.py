@@ -7,8 +7,8 @@ import os, sys  # Needed for dynamic path adjustment before importing transforme
 from typing import List, Union, Optional, Dict, Any
 
 # Minimal imports for Ollama & OpenAI only
-from ollama_api import send_ollama_request, create_ollama_embedding
-from openai_api import (
+from api.ollama_api import send_ollama_request, create_ollama_embedding
+from api.openai_api import (
     send_openai_request,
     generate_image,
     generate_image_variations,
@@ -18,7 +18,7 @@ from openai_api import (
 from llmtoolkit_utils import convert_images_for_api, ensure_ollama_server, ensure_ollama_model
 
 # Gemini helpers (OpenAI-compat layer)
-from gemini_api import (
+from api.gemini_api import (
     send_gemini_request,
     send_gemini_image_generation_request,
     create_gemini_compatible_embedding,
